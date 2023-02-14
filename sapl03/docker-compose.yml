@@ -1,0 +1,38 @@
+sapldb:
+  image: postgres:10.5-alpine
+  restart: always
+  environment:
+    POSTGRES_PASSWORD: sapl
+    POSTGRES_USER: sapl
+    POSTGRES_DB: sapl
+    PGDATA : /var/lib/postgresql/data/
+  volumes:
+    - sapldb3_data:/var/lib/postgresql/data/
+  ports:
+    - "5433:5432"
+sapl:
+  image: interlegis/sapl:3.1.163-RC9
+  restart: always
+  environment:
+    DATABASE_URL: postgresql://sapl:sapl@sapldb:5432/sapl
+    ADMIN_PASSWORD: interlegis
+    ADMIN_EMAIL: email@dominio.net
+    DEBUG: 'False'
+    USE_TLS: 'False'
+    EMAIL_PORT: 25
+    EMAIL_HOST: smtp.interlegis.leg.br
+    EMAIL_SEND_USER: no-reply@interlegis.leg.br
+    TZ: America/Sao_Paulo
+    USE_SOLR: 'false'
+    SOLR_COLLECTION: "cursosapl03_il"
+    SOLR_URL: "https://ilsapl:docker_esta_mandando_agora@solrcloud.interlegis.leg.br"
+    NUM_SHARDS: "1"
+    RF: "2"
+    MAX_SHARDS_PER_NODE: "1"
+  volumes:
+    - sapl3_data:/var/interlegis/sapl/data
+    - sapl3_media:/var/interlegis/sapl/media
+  links:
+    - sapldb
+  ports:
+    - "8083:80"
